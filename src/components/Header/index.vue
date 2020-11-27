@@ -58,12 +58,14 @@ export default {
   height: 30px;
   line-height: 30px;
   padding: 0 35px;
+  display: flex;
+  justify-content: space-between;
 }
 .header-login {
-  float: left;
   margin-left: 30px;
+  display: flex;
+  justify-content: space-between;
   p {
-    float: left;
     margin-right: 10px;
     a {
       margin-left: 5px;
@@ -75,7 +77,6 @@ export default {
   padding: 0 5px;
 }
 .header-list {
-  float: right;
   a {
     padding: 0 10px;
   }
@@ -84,19 +85,19 @@ export default {
   }
 }
 .header-bottom {
-  height: 112px;
+  height: 110px;
   width: 1200px;
   margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
 }
 .header-logo {
-  float: left;
   img {
     width: 175px;
     margin: 25px 45px;
   }
 }
 .header-search {
-  float: right;
   margin-top: 35px;
   form {
     input {
