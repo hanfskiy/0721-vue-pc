@@ -13,7 +13,8 @@
         <a href="###">有趣</a>
         <a href="###">秒杀</a>
       </nav>
-      <div class="sort">
+      <!-- 绑定事件委托 -->
+      <div class="sort" @click="goCategory">
         <div class="all-sort-list2">
           <div
             class="item bo"
@@ -21,7 +22,13 @@
             :key="category.categoryId"
           >
             <h3>
-              <a href="">{{ category.categoryName }}</a>
+              <!-- 使用自定义属性获取query参数的值 -->
+              <a
+                :data-categoryName="category.categoryName"
+                :data-categoryId="category.categoryId"
+                :data-categoryType="1"
+                >{{ category.categoryName }}</a
+              >
             </h3>
             <div class="item-list clearfix">
               <div class="subitem">
@@ -31,14 +38,24 @@
                   :key="child.categoryId"
                 >
                   <dt>
-                    <a href="">{{ child.categoryName }}</a>
+                    <a
+                      :data-categoryName="child.categoryName"
+                      :data-categoryId="child.categoryId"
+                      :data-categoryType="2"
+                      >{{ child.categoryName }}</a
+                    >
                   </dt>
                   <dd>
                     <em
                       v-for="grandSon in child.categoryChild"
                       :key="grandSon.categoryId"
                     >
-                      <a href="">{{ grandSon.categoryName }}</a>
+                      <a
+                        :data-categoryName="grandSon.categoryName"
+                        :data-categoryId="grandSon.categoryId"
+                        :data-categoryType="3"
+                        >{{ grandSon.categoryName }}</a
+                      >
                     </em>
                   </dd>
                 </dl>
@@ -52,21 +69,35 @@
 </template>
 
 <script>
-import { reqGetBaseCategoryList } from "@api/home.js";
+import { mapState, mapActions } from "vuex";
 
 export default {
   name: "TypeNav",
-  data() {
-    return {
-      categoryList: [],
-    };
+  computed: {
+    ...mapState({
+      categoryList: (state) => state.home.categoryList.slice(0, 15),
+    }),
   },
-  async mounted() {
-    // 发送请求，拿到请求结果
-    // 使用async，await，因为只会拿到成功的结果
-    const result = await reqGetBaseCategoryList();
-    // 展示15条数据
-    this.categoryList = result.slice(0, 15);
+  methods: {
+    ...mapActions(["getCategoryList"]),
+    goCategory(e) {
+      const { categoryname, categoryid, categorytype } = e.target.dataset;
+
+      // 点击的不是a标签就不跳转
+      if (!categoryname) return;
+
+      // 路由链接跳转
+      this.$router.push({
+        name: "search",
+        query: {
+          categoryname,
+          [`category${categorytype}id`]: categoryid,
+        },
+      });
+    },
+  },
+  mounted() {
+    this.getCategoryList();
   },
 };
 </script>
