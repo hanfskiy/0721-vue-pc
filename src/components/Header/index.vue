@@ -65,6 +65,13 @@ export default {
           searchContent,
         };
       }
+
+      // 判断query上有没有categoryname，有就将query参数添加到路径中
+      const { categoryname } = this.$route.query;
+      if (categoryname) {
+        location.query = this.$route.query;
+      }
+
       this.$router.push(location);
     },
   },

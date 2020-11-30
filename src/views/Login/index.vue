@@ -15,11 +15,21 @@
             <div class="login-text">
               <form action="">
                 <label for="user">
+                  <span class="el-icon-user"></span>
                   <input type="text" placeholder="手机号" />
                 </label>
                 <label for="password">
+                  <span class="el-icon-lock"></span>
                   <input type="password" placeholder="请输入密码" />
                 </label>
+                <label for="">
+                  <input type="checkbox" />
+                  自动登录
+                </label>
+                <span>
+                  <a href="">忘记密码？</a>
+                </span>
+                <el-button type="danger">登录</el-button>
               </form>
             </div>
           </div>
@@ -66,6 +76,16 @@ export default {
 }
 .login-list {
   display: flex;
+  border-bottom: 1px solid #ddd;
+  li {
+    font-size: 20px;
+    height: 50px;
+    width: 100%;
+    line-height: 50px;
+    text-align: center;
+    border-left: 1px solid #ddd;
+    font-weight: 700;
+  }
 }
 .login-phone {
   padding-top: 50px;
@@ -73,6 +93,6 @@ export default {
 }
 .login-border {
   border: 1px solid #ddd;
-  padding: 20px;
+  margin: 20px;
 }
 </style>

@@ -1,8 +1,8 @@
 <template>
   <!-- 商品分类导航 -->
   <div class="type-nav">
-    <div class="container">
-      <h2 class="all">全部商品分类</h2>
+    <div class="container" @mouseleave="isSearchShow = false">
+      <h2 class="all" @mouseenter="isSearchShow = true">全部商品分类</h2>
       <nav class="nav">
         <a href="###">服装城</a>
         <a href="###">美妆馆</a>
@@ -13,57 +13,63 @@
         <a href="###">有趣</a>
         <a href="###">秒杀</a>
       </nav>
-      <!-- 绑定事件委托 -->
-      <div class="sort" @click="goCategory">
-        <div class="all-sort-list2">
-          <div
-            class="item bo"
-            v-for="category in categoryList"
-            :key="category.categoryId"
-          >
-            <h3>
-              <!-- 使用自定义属性获取query参数的值 -->
-              <a
-                :data-categoryName="category.categoryName"
-                :data-categoryId="category.categoryId"
-                :data-categoryType="1"
-                >{{ category.categoryName }}</a
-              >
-            </h3>
-            <div class="item-list clearfix">
-              <div class="subitem">
-                <dl
-                  class="fore"
-                  v-for="child in category.categoryChild"
-                  :key="child.categoryId"
+      <transition name="search">
+        <!-- 绑定事件委托 -->
+        <div
+          class="sort"
+          @click="goCategory"
+          v-show="isHomeShow || isSearchShow"
+        >
+          <div class="all-sort-list2">
+            <div
+              class="item bo"
+              v-for="category in categoryList"
+              :key="category.categoryId"
+            >
+              <h3>
+                <!-- 使用自定义属性获取query参数的值 -->
+                <a
+                  :data-categoryName="category.categoryName"
+                  :data-categoryId="category.categoryId"
+                  :data-categoryType="1"
+                  >{{ category.categoryName }}</a
                 >
-                  <dt>
-                    <a
-                      :data-categoryName="child.categoryName"
-                      :data-categoryId="child.categoryId"
-                      :data-categoryType="2"
-                      >{{ child.categoryName }}</a
-                    >
-                  </dt>
-                  <dd>
-                    <em
-                      v-for="grandSon in child.categoryChild"
-                      :key="grandSon.categoryId"
-                    >
+              </h3>
+              <div class="item-list clearfix">
+                <div class="subitem">
+                  <dl
+                    class="fore"
+                    v-for="child in category.categoryChild"
+                    :key="child.categoryId"
+                  >
+                    <dt>
                       <a
-                        :data-categoryName="grandSon.categoryName"
-                        :data-categoryId="grandSon.categoryId"
-                        :data-categoryType="3"
-                        >{{ grandSon.categoryName }}</a
+                        :data-categoryName="child.categoryName"
+                        :data-categoryId="child.categoryId"
+                        :data-categoryType="2"
+                        >{{ child.categoryName }}</a
                       >
-                    </em>
-                  </dd>
-                </dl>
+                    </dt>
+                    <dd>
+                      <em
+                        v-for="grandSon in child.categoryChild"
+                        :key="grandSon.categoryId"
+                      >
+                        <a
+                          :data-categoryName="grandSon.categoryName"
+                          :data-categoryId="grandSon.categoryId"
+                          :data-categoryType="3"
+                          >{{ grandSon.categoryName }}</a
+                        >
+                      </em>
+                    </dd>
+                  </dl>
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
+      </transition>
     </div>
   </div>
 </template>
@@ -73,6 +79,13 @@ import { mapState, mapActions } from "vuex";
 
 export default {
   name: "TypeNav",
+  data() {
+    return {
+      // home页面默认显示，search页面默认隐藏
+      isHomeShow: this.$route.path === "/",
+      isSearchShow: false,
+    };
+  },
   computed: {
     ...mapState({
       categoryList: (state) => state.home.categoryList.slice(0, 15),
@@ -86,17 +99,32 @@ export default {
       // 点击的不是a标签就不跳转
       if (!categoryname) return;
 
-      // 路由链接跳转
-      this.$router.push({
+      // 点击后隐藏
+      this.isSearchShow = false;
+
+      const location = {
         name: "search",
         query: {
           categoryname,
           [`category${categorytype}id`]: categoryid,
         },
-      });
+      };
+
+      // 判断有没有搜索内容，有就将搜索内容添加到params中
+      const { searchContent } = this.$route.params;
+
+      if (searchContent) {
+        location.params = {
+          searchContent,
+        };
+      }
+
+      // 路由链接跳转
+      this.$router.push(location);
     },
   },
   mounted() {
+    if (this.categoryList.length) return;
     this.getCategoryList();
   },
 };
@@ -142,6 +170,15 @@ export default {
       position: absolute;
       background: #fafafa;
       z-index: 999;
+
+      // 添加过渡效果
+      &.search-enter-active {
+        transition: height 0.5s;
+        overflow: hidden;
+      }
+      &.search-enter {
+        height: 0px;
+      }
 
       .all-sort-list2 {
         .item {
