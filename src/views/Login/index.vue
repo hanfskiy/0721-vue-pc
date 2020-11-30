@@ -14,23 +14,28 @@
             </ul>
             <div class="login-text">
               <form action="">
-                <label for="user">
-                  <span class="el-icon-user"></span>
+                <div class="login-content">
+                  <i class="el-icon-user"></i>
                   <input type="text" placeholder="手机号" />
-                </label>
-                <label for="password">
-                  <span class="el-icon-lock"></span>
+                </div>
+                <div class="login-content">
+                  <i class="el-icon-lock"></i>
                   <input type="password" placeholder="请输入密码" />
-                </label>
-                <label for="">
-                  <input type="checkbox" />
-                  自动登录
-                </label>
-                <span>
-                  <a href="">忘记密码？</a>
-                </span>
-                <el-button type="danger">登录</el-button>
+                </div>
+                <div class="login-check">
+                  <label for="">
+                    <input type="checkbox" />
+                    自动登录
+                  </label>
+                  <span>
+                    <a href="">忘记密码？</a>
+                  </span>
+                </div>
+                <el-button type="danger" class="login-btn">登录</el-button>
               </form>
+              <router-link to="/register" class="login-to"
+                >立即注册</router-link
+              >
             </div>
           </div>
         </div>
@@ -76,7 +81,8 @@ export default {
 }
 .login-list {
   display: flex;
-  border-bottom: 1px solid #ddd;
+  border: 1px solid #ddd;
+  border-left: none;
   li {
     font-size: 20px;
     height: 50px;
@@ -92,7 +98,55 @@ export default {
   float: right;
 }
 .login-border {
-  border: 1px solid #ddd;
   margin: 20px;
+}
+.login-text {
+  position: relative;
+  width: 100%;
+  height: 316px;
+  border: 1px solid #ddd;
+  padding: 18px;
+  box-sizing: border-box;
+  border-top: none;
+}
+form {
+  margin: 15px 0 18px 0;
+}
+.login-content {
+  margin-bottom: 18px;
+  input {
+    width: 300px;
+    height: 32px;
+    box-sizing: border-box;
+    border: 1px solid #ddd;
+    outline: none;
+    border-left: none;
+    padding-top: 5px;
+  }
+}
+i {
+  width: 35px;
+  height: 30px;
+  line-height: 32px;
+  border: 1px solid #ddd;
+  text-align: center;
+  font-size: 18px;
+  color: red;
+}
+.login-btn {
+  width: 100%;
+  height: 36px;
+  margin-top: 35px;
+}
+.login-check {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 30px;
+}
+.login-to {
+  position: absolute;
+  right: 15px;
+  bottom: 30px;
+  font-size: 16px;
 }
 </style>
