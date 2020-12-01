@@ -1,9 +1,14 @@
-import { reqGetBanners, reqGetBaseCategoryList } from "@api/home.js";
+import {
+  reqGetBanners,
+  reqGetBaseCategoryList,
+  reqGetFloors,
+} from "@api/home.js";
 
 export default {
   state: {
     categoryList: [], //首页三级分类列表数据
     banners: [],
+    floors: [],
   },
   getters: {},
   actions: {
@@ -15,6 +20,10 @@ export default {
       const banners = await reqGetBanners();
       commit("GET_BANNERS", banners);
     },
+    async getFloors({ commit }) {
+      const floors = await reqGetFloors();
+      commit("GET_FLOORS", floors);
+    },
   },
   mutations: {
     GET_CATEGORY_LIST(state, categoryList) {
@@ -22,6 +31,9 @@ export default {
     },
     GET_BANNERS(state, banners) {
       state.banners = banners;
+    },
+    GET_FLOORS(state, floors) {
+      state.floors = floors;
     },
   },
 };
