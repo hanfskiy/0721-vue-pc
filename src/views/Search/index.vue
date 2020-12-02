@@ -11,10 +11,16 @@
             </li>
           </ul>
           <ul class="fl sui-tag">
-            <li class="with-x">手机</li>
-            <li class="with-x">iphone<i>×</i></li>
-            <li class="with-x">华为<i>×</i></li>
-            <li class="with-x">OPPO<i>×</i></li>
+            <li class="with-x" v-show="options.keyword" @click="delkeyword">
+              {{ options.keyword }}<i>×</i>
+            </li>
+            <li
+              class="with-x"
+              v-show="options.categoryName"
+              @click="delcategory"
+            >
+              {{ options.categoryName }}<i>×</i>
+            </li>
           </ul>
         </div>
 
@@ -132,14 +138,74 @@ import TypeNav from "@comps/TypeNav";
 
 export default {
   name: "Search",
+  data() {
+    return {
+      options: {
+        category1Id: "", // 一级分类id
+        category2Id: "", // 二级分类id
+        category3Id: "", // 三级分类id
+        categoryName: "", // 分类名称
+        keyword: "", // 搜索内容（搜索关键字）
+        order: "", // 排序方式：1：综合排序  2：价格排序   asc 升序  desc 降序
+        pageNo: 1, // 分页的页码（第几页）
+        pageSize: 5, // 分页的每页商品数量
+        props: [], // 商品属性
+        trademark: "", // 品牌
+      },
+    };
+  },
+  watch: {
+    $route() {
+      this.updateSearch();
+    },
+  },
   computed: {
     ...mapGetters(["goodsList"]),
   },
   methods: {
     ...mapActions(["getSearch"]),
+    updateSearch() {
+      const { searchContent: keyword } = this.$route.params;
+      const {
+        category1id: category1Id,
+        category2id: category2Id,
+        category3id: category3Id,
+        categoryname: categoryName,
+      } = this.$route.query;
+
+      const options = {
+        ...this.options,
+        keyword,
+        category1Id,
+        category2Id,
+        category3Id,
+        categoryName,
+      };
+
+      this.options = options;
+      this.getSearch(options);
+    },
+    delkeyword() {
+      this.options.keyword = "";
+      this.$bus.$emit("getKeyword");
+      this.$router.replace({
+        name: "search",
+        query: this.$route.query,
+      });
+    },
+    delcategory() {
+      this.options.categoryName = "";
+      this.options.category1Id = "";
+      this.options.category2Id = "";
+      this.options.category3Id = "";
+      this.$router.replace({
+        name: "search",
+        params: this.$route.params,
+      });
+    },
   },
   mounted() {
-    this.getSearch();
+    this.updateSearch();
   },
   components: {
     SearchSelector,

@@ -120,7 +120,11 @@ export default {
       }
 
       // 路由链接跳转
-      this.$router.push(location);
+      if (this.$route.name === "search") {
+        this.$router.replace(location);
+      } else {
+        this.$router.push(location);
+      }
     },
   },
   mounted() {

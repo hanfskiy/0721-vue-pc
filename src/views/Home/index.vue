@@ -35,6 +35,7 @@ export default {
   },
   methods: {
     ...mapActions(["getFloors"]),
+    
   },
   mounted() {
     this.getFloors();
