@@ -1,4 +1,5 @@
 import Vue from "vue";
+import "./plugins/element.js";
 
 import App from "./App";
 import router from "./router";
@@ -9,7 +10,7 @@ import store from "./store";
 import "./mock/mockServer";
 
 import "./styles/reset.css";
-import "./plugins/element.js";
+import "./styles/iconfont.css";
 
 Vue.config.productionTip = false;
 

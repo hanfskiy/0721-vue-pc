@@ -11,21 +11,32 @@
             </li>
           </ul>
           <ul class="fl sui-tag">
-            <li class="with-x" v-show="options.keyword" @click="delkeyword">
-              {{ options.keyword }}<i>×</i>
+            <li class="with-x" v-show="options.keyword" @click="delKeyword">
+              关键字：{{ options.keyword }}<i>×</i>
             </li>
             <li
               class="with-x"
               v-show="options.categoryName"
-              @click="delcategory"
+              @click="delCategory"
             >
-              {{ options.categoryName }}<i>×</i>
+              分类： {{ options.categoryName }}<i>×</i>
+            </li>
+            <li class="with-x" v-show="options.trademark" @click="delTrademark">
+              品牌： {{ options.trademark.split(":")[1] }}<i>×</i>
+            </li>
+            <li
+              class="with-x"
+              v-for="(prop, index) in options.props"
+              :key="prop"
+              @click="delProp(index)"
+            >
+              {{ prop.split(":")[2] }} ：{{ prop.split(":")[1] }}<i>×</i>
             </li>
           </ul>
         </div>
 
         <!--选择商品的类别-->
-        <SearchSelector />
+        <SearchSelector :addTrademark="addTrademark" @add-props="addProps" />
 
         <div class="details clearfix">
           <!--商品列表导航-->
@@ -33,7 +44,9 @@
             <div class="navbar-inner filter">
               <ul class="sui-nav">
                 <li class="active">
-                  <a href="#">综合</a>
+                  <a href="#"
+                    >综合<i class="iconfont icon-direction-down"></i
+                  ></a>
                 </li>
                 <li>
                   <a href="#">销量</a>
@@ -164,6 +177,7 @@ export default {
   },
   methods: {
     ...mapActions(["getSearch"]),
+    //更新商品列表
     updateSearch() {
       const { searchContent: keyword } = this.$route.params;
       const {
@@ -185,23 +199,46 @@ export default {
       this.options = options;
       this.getSearch(options);
     },
-    delkeyword() {
+    // 删除关键字
+    delKeyword() {
       this.options.keyword = "";
       this.$bus.$emit("getKeyword");
+      // 清除路径params参数
       this.$router.replace({
         name: "search",
         query: this.$route.query,
       });
     },
-    delcategory() {
+    // 删除三级分类关键字
+    delCategory() {
       this.options.categoryName = "";
       this.options.category1Id = "";
       this.options.category2Id = "";
       this.options.category3Id = "";
+      // 清除路径query参数
       this.$router.replace({
         name: "search",
         params: this.$route.params,
       });
+    },
+    // 添加品牌并更新数据
+    addTrademark(trademark) {
+      this.options.trademark = trademark;
+      this.updateSearch();
+    },
+    // 删除品牌并更新数据
+    delTrademark() {
+      this.options.trademark = "";
+      this.updateSearch();
+    },
+    // 添加品牌属性并更新数据
+    addProps(prop) {
+      this.options.props.push(prop);
+      this.updateSearch();
+    },
+    delProp(index) {
+      this.options.props.splice(index, 1);
+      this.updateSearch();
     },
   },
   mounted() {
@@ -316,11 +353,15 @@ export default {
               line-height: 18px;
 
               a {
-                display: block;
+                display: flex;
+                // justify-content: space-around;
                 cursor: pointer;
                 padding: 11px 15px;
                 color: #777;
                 text-decoration: none;
+                i {
+                  padding-left: 5px;
+                }
               }
 
               &.active {
