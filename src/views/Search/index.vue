@@ -43,25 +43,54 @@
           <div class="sui-navbar">
             <div class="navbar-inner filter">
               <ul class="sui-nav">
-                <li class="active">
-                  <a href="#"
-                    >综合<i class="iconfont icon-direction-down"></i
+                <li
+                  :class="{ active: options.order.indexOf('1') > -1 }"
+                  @click="setOrder('1')"
+                >
+                  <a
+                    >综合<i
+                      :class="{
+                        iconfont: true,
+                        'icon-direction-down': isAllDown,
+                        'icon-direction-up': !isAllDown,
+                      }"
+                    ></i
                   ></a>
                 </li>
                 <li>
-                  <a href="#">销量</a>
+                  <a>销量</a>
                 </li>
                 <li>
-                  <a href="#">新品</a>
+                  <a>新品</a>
                 </li>
                 <li>
-                  <a href="#">评价</a>
+                  <a>评价</a>
                 </li>
-                <li>
-                  <a href="#">价格⬆</a>
-                </li>
-                <li>
-                  <a href="#">价格⬇</a>
+                <li
+                  :class="{ active: options.order.indexOf('2') > -1 }"
+                  @click="setOrder('2')"
+                >
+                  <a>
+                    价格
+                    <span>
+                      <i
+                        :class="{
+                          iconfont: true,
+                          'icon-arrow-up-filling': true,
+                          deactive:
+                            options.order.indexOf('2') > -1 && isPriceDown,
+                        }"
+                      ></i>
+                      <i
+                        :class="{
+                          iconfont: true,
+                          'icon-arrow-down-filling': true,
+                          deactive:
+                            options.order.indexOf('2') > -1 && !isPriceDown,
+                        }"
+                      ></i>
+                    </span>
+                  </a>
                 </li>
               </ul>
             </div>
@@ -109,35 +138,17 @@
             </ul>
           </div>
           <!-- 分页器 -->
-          <div class="fr page">
-            <div class="sui-pagination clearfix">
-              <ul>
-                <li class="prev disabled">
-                  <a href="#">«上一页</a>
-                </li>
-                <li class="active">
-                  <a href="#">1</a>
-                </li>
-                <li>
-                  <a href="#">2</a>
-                </li>
-                <li>
-                  <a href="#">3</a>
-                </li>
-                <li>
-                  <a href="#">4</a>
-                </li>
-                <li>
-                  <a href="#">5</a>
-                </li>
-                <li class="dotted"><span>...</span></li>
-                <li class="next">
-                  <a href="#">下一页»</a>
-                </li>
-              </ul>
-              <div><span>共10页&nbsp;</span></div>
-            </div>
-          </div>
+          <el-pagination
+            @size-change="handleSizeChange"
+            @current-change="handleCurrentChange"
+            :current-page="options.pageNo"
+            :page-count="9"
+            :page-sizes="[5, 10, 15, 20]"
+            :page-size="5"
+            layout=" prev, pager, next, total, sizes, jumper"
+            :total="total"
+          >
+          </el-pagination>
         </div>
       </div>
     </div>
@@ -159,12 +170,14 @@ export default {
         category3Id: "", // 三级分类id
         categoryName: "", // 分类名称
         keyword: "", // 搜索内容（搜索关键字）
-        order: "", // 排序方式：1：综合排序  2：价格排序   asc 升序  desc 降序
+        order: "1:desc", // 排序方式：1：综合排序  2：价格排序   asc 升序  desc 降序
         pageNo: 1, // 分页的页码（第几页）
         pageSize: 5, // 分页的每页商品数量
         props: [], // 商品属性
         trademark: "", // 品牌
       },
+      isAllDown: true,
+      isPriceDown: false,
     };
   },
   watch: {
@@ -173,12 +186,12 @@ export default {
     },
   },
   computed: {
-    ...mapGetters(["goodsList"]),
+    ...mapGetters(["goodsList", "total"]),
   },
   methods: {
     ...mapActions(["getSearch"]),
     //更新商品列表
-    updateSearch() {
+    updateSearch(pageNo = 1) {
       const { searchContent: keyword } = this.$route.params;
       const {
         category1id: category1Id,
@@ -194,6 +207,7 @@ export default {
         category2Id,
         category3Id,
         categoryName,
+        pageNo,
       };
 
       this.options = options;
@@ -236,9 +250,44 @@ export default {
       this.options.props.push(prop);
       this.updateSearch();
     },
+    // 删除品牌属性
     delProp(index) {
       this.options.props.splice(index, 1);
       this.updateSearch();
+    },
+    // 排序功能
+    setOrder(order) {
+      let [orderNum, orderType] = this.options.order.split(":");
+
+      // 不相等点击的就是第一次：不改变图标
+      // 相等点击的就是第二次：改变图标
+      if (order === orderNum) {
+        if (order === "1") {
+          this.isAllDown = !this.isAllDown;
+        } else {
+          this.isPriceDown = !this.isPriceDown;
+        }
+        orderType = orderType === "desc" ? "asc" : "desc";
+      } else {
+        if (order === "1") {
+          orderType = this.isAllDown ? "desc" : "asc";
+        } else {
+          this.isPriceDown = false;
+          orderType = "asc";
+        }
+      }
+
+      this.options.order = `${order}:${orderType}`;
+      this.updateSearch();
+    },
+    // 控制每页商品数量
+    handleSizeChange(pageSize) {
+      this.options.pageSize = pageSize;
+      this.updateSearch();
+    },
+    // 控制分页页码
+    handleCurrentChange(pageNo) {
+      this.updateSearch(pageNo);
     },
   },
   mounted() {
@@ -361,6 +410,17 @@ export default {
                 text-decoration: none;
                 i {
                   padding-left: 5px;
+                }
+                span {
+                  display: flex;
+                  flex-direction: column;
+                  line-height: 11px;
+                  i {
+                    font-size: 12px;
+                    &.deactive {
+                      color: rgba(255, 255, 255, 0.5);
+                    }
+                  }
                 }
               }
 
