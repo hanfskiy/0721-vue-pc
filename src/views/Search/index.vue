@@ -43,10 +43,7 @@
           <div class="sui-navbar">
             <div class="navbar-inner filter">
               <ul class="sui-nav">
-                <li
-                  :class="{ active: options.order.indexOf('1') > -1 }"
-                  @click="setOrder('1')"
-                >
+                <li :class="{ active: isOrder('1') }" @click="setOrder('1')">
                   <a
                     >综合<i
                       :class="{
@@ -66,10 +63,7 @@
                 <li>
                   <a>评价</a>
                 </li>
-                <li
-                  :class="{ active: options.order.indexOf('2') > -1 }"
-                  @click="setOrder('2')"
-                >
+                <li :class="{ active: isOrder('2') }" @click="setOrder('2')">
                   <a>
                     价格
                     <span>
@@ -77,16 +71,14 @@
                         :class="{
                           iconfont: true,
                           'icon-arrow-up-filling': true,
-                          deactive:
-                            options.order.indexOf('2') > -1 && isPriceDown,
+                          deactive: isOrder('2') && isPriceDown,
                         }"
                       ></i>
                       <i
                         :class="{
                           iconfont: true,
                           'icon-arrow-down-filling': true,
-                          deactive:
-                            options.order.indexOf('2') > -1 && !isPriceDown,
+                          deactive: isOrder('2') && !isPriceDown,
                         }"
                       ></i>
                     </span>
@@ -138,17 +130,13 @@
             </ul>
           </div>
           <!-- 分页器 -->
-          <el-pagination
-            @size-change="handleSizeChange"
+          <Pagination
             @current-change="handleCurrentChange"
             :current-page="options.pageNo"
-            :page-count="9"
-            :page-sizes="[5, 10, 15, 20]"
+            :pager-count="7"
             :page-size="5"
-            layout=" prev, pager, next, total, sizes, jumper"
             :total="total"
-          >
-          </el-pagination>
+          />
         </div>
       </div>
     </div>
@@ -159,6 +147,7 @@
 import { mapGetters, mapActions } from "vuex";
 import SearchSelector from "./SearchSelector/SearchSelector";
 import TypeNav from "@comps/TypeNav";
+import Pagination from "@comps/Pagination";
 
 export default {
   name: "Search",
@@ -176,11 +165,12 @@ export default {
         props: [], // 商品属性
         trademark: "", // 品牌
       },
-      isAllDown: true,
-      isPriceDown: false,
+      isAllDown: true, //综合排序，默认降序
+      isPriceDown: false, //价格排序，默认升序
     };
   },
   watch: {
+    // 监视$route，参数发送变化就更新用户列表并发送请求
     $route() {
       this.updateSearch();
     },
@@ -237,6 +227,8 @@ export default {
     },
     // 添加品牌并更新数据
     addTrademark(trademark) {
+      // 如果品牌存在了就不再请求;
+      if (this.options.trademark) return;
       this.options.trademark = trademark;
       this.updateSearch();
     },
@@ -247,6 +239,8 @@ export default {
     },
     // 添加品牌属性并更新数据
     addProps(prop) {
+      // 如果数据存在了就不能再添加了
+      if (this.options.props.indexOf(prop) > -1) return;
       this.options.props.push(prop);
       this.updateSearch();
     },
@@ -289,13 +283,19 @@ export default {
     handleCurrentChange(pageNo) {
       this.updateSearch(pageNo);
     },
+    // 封装判断order为xxx的函数
+    isOrder(order) {
+      return this.options.order.indexOf(order) > -1;
+    },
   },
   mounted() {
+    // 更新数据并发送请求
     this.updateSearch();
   },
   components: {
     SearchSelector,
     TypeNav,
+    Pagination,
   },
 };
 </script>
