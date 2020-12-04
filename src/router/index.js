@@ -5,6 +5,7 @@ import Home from "../views/Home";
 import Register from "../views/Register";
 import Search from "../views/Search";
 import Login from "../views/Login";
+import Detail from "../views/Detail";
 
 const push = VueRouter.prototype.push;
 const replace = VueRouter.prototype.replace;
@@ -47,6 +48,11 @@ export default new VueRouter({
       component: Search,
     },
     {
+      name: "detail",
+      path: "/detail/:id",
+      component: Detail,
+    },
+    {
       path: "/login",
       component: Login,
       meta: {
@@ -54,4 +60,8 @@ export default new VueRouter({
       },
     },
   ],
+  // 切换路由时，滚动条保持在页面顶部
+  scrollBehavior() {
+    return { x: 0, y: 0 };
+  },
 });
