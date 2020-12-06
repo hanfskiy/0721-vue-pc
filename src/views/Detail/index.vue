@@ -16,9 +16,23 @@
         <!-- 左侧放大镜区域 -->
         <div class="previewWrap">
           <!--放大镜效果-->
-          <Zoom />
+          <Zoom
+            :imgUrl="
+              skuInfo &&
+              skuInfo.skuImageList &&
+              skuInfo.skuImageList[imageIndex].imgUrl
+            "
+            :bigImgUrl="
+              skuInfo &&
+              skuInfo.skuImageList &&
+              skuInfo.skuImageList[imageIndex].imgUrl
+            "
+          />
           <!-- 小图列表 -->
-          <ImageList />
+          <ImageList
+            :skuImageList="skuInfo.skuImageList"
+            :updateImageIndex="updateImageIndex"
+          />
         </div>
         <!-- 右侧选择区域布局 -->
         <div class="InfoWrap">
@@ -88,11 +102,15 @@
             </div>
             <div class="cartWrap">
               <div class="controls">
-                <input autocomplete="off" class="itxt" />
-                <a href="javascript:" class="plus">+</a>
-                <a href="javascript:" class="mins">-</a>
+                <el-input-number
+                  class="input-number"
+                  v-model="skuNum"
+                  controls-position="right"
+                  :min="1"
+                  :max="10"
+                ></el-input-number>
               </div>
-              <div class="add">
+              <div class="add" @click="addshopcar">
                 <a href="javascript:">加入购物车</a>
               </div>
             </div>
@@ -339,11 +357,35 @@ import Zoom from "./Zoom/Zoom";
 
 export default {
   name: "Detail",
+  data() {
+    return {
+      // 图片的下标
+      imageIndex: 0,
+      // 添加购物车的数量
+      skuNum: 1,
+    };
+  },
   computed: {
     ...mapGetters(["categoryView", "skuInfo", "spuSaleAttrList"]),
   },
   methods: {
-    ...mapActions(["getDetail"]),
+    ...mapActions(["getDetail", "getUpdateCartCount"]),
+    // 更新图片的下标
+    updateImageIndex(index) {
+      this.imageIndex = index;
+    },
+    async addshopcar() {
+      try {
+        await this.getUpdateCartCount({
+          skuId: this.skuInfo.id,
+          skuNum: this.skuNum,
+        });
+
+        this.$router.push(`/addCartSuccess?skuNum=${this.skuNum}`);
+      } catch (e) {
+        console.log(e);
+      }
+    },
   },
   mounted() {
     this.getDetail(this.$route.params.id);
@@ -525,6 +567,10 @@ export default {
               float: left;
               margin-right: 15px;
 
+              .input-number {
+                width: 150px;
+              }
+
               .itxt {
                 width: 38px;
                 height: 37px;
@@ -561,7 +607,7 @@ export default {
 
             .add {
               float: left;
-
+              margin-left: 100px;
               a {
                 background-color: #e1251b;
                 padding: 0 25px;

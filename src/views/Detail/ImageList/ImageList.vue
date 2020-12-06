@@ -1,8 +1,12 @@
 <template>
-  <div class="swiper-container">
+  <div class="swiper-container" ref="swiper">
     <div class="swiper-wrapper">
-      <div class="swiper-slide">
-        <img src="../images/s1.png" />
+      <div
+        class="swiper-slide"
+        v-for="(skuImage, index) in skuImageList"
+        :key="skuImage.id"
+      >
+        <img :src="skuImage.imgUrl" @click="updateImageIndex(index)" />
       </div>
     </div>
     <div class="swiper-button-next"></div>
@@ -11,9 +15,31 @@
 </template>
 
 <script>
-// import Swiper from 'swiper'
+import Swiper, { Navigation } from "swiper";
+
+Swiper.use([Navigation]);
+
 export default {
   name: "ImageList",
+  props: {
+    skuImageList: Array,
+    updateImageIndex: Function,
+  },
+  watch: {
+    skuImageList() {
+      this.$nextTick(() => {
+        new Swiper(this.$refs.swiper, {
+          slidesPerView: 5,
+          spaceBetween: 30,
+          slidesPerGroup: 5,
+          navigation: {
+            nextEl: ".swiper-button-next",
+            prevEl: ".swiper-button-prev",
+          },
+        });
+      });
+    },
+  },
 };
 </script>
 

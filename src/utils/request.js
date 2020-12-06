@@ -6,6 +6,11 @@ import "nprogress/nprogress.css";
 
 import { Message } from "element-ui";
 
+import getUserTempId from "@utils/getUserTempId";
+
+// 在内存中缓存一份localStorge数据，让性能更好
+const userTempId = getUserTempId();
+
 const instance = axios.create({
   baseURL: "/api", //公共的基础路径
   headers: {},
@@ -17,16 +22,19 @@ instance.interceptors.request.use((config) => {
   // 将来发送请求(请求地址，请求参数，请求方式等)都会在config中找
   // 进度条开始
   NProgress.start();
+
+  // 给请求头添加userTempId数据
+  config.headers.userTempId = userTempId;
   return config;
 });
 
 // 设置响应拦截器
 instance.interceptors.response.use(
-  // 当响应状态码为2xx 响应成功 
+  // 当响应状态码为2xx 响应成功
   (response) => {
     // 进度条结束
     NProgress.done();
-    
+
     /* 
       响应成功不能代表功能成功，只是代表有响应结果
       功能是否成功看code
