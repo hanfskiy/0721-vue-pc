@@ -7,6 +7,7 @@ import "nprogress/nprogress.css";
 import { Message } from "element-ui";
 
 import getUserTempId from "@utils/getUserTempId";
+import store from "../store";
 
 // 在内存中缓存一份localStorge数据，让性能更好
 const userTempId = getUserTempId();
@@ -22,6 +23,12 @@ instance.interceptors.request.use((config) => {
   // 将来发送请求(请求地址，请求参数，请求方式等)都会在config中找
   // 进度条开始
   NProgress.start();
+
+  // 给请求头添加token，合并token和userTempId的数据
+  const token = store.state.user.token;
+  if (token) {
+    config.headers.token = token;
+  }
 
   // 给请求头添加userTempId数据
   config.headers.userTempId = userTempId;
