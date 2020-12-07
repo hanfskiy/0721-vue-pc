@@ -13,3 +13,15 @@ export const reqLogin = (phone, password) => {
     },
   });
 };
+
+export const reqRegister = ({ phone, password, code }) => {
+  return request({
+    method: "POST",
+    url: "/user/passport/register",
+    data: {
+      phone,
+      password,
+      code,
+    },
+  });
+};

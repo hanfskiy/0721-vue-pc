@@ -25,12 +25,14 @@
             <span class="price">{{ cart.skuPrice }}</span>
           </li>
           <li class="cart-list-con5">
-            <a
+            <button
               href="javascript:void(0)"
               class="mins"
               @click="updateCount(cart.skuId, -1)"
-              >-</a
+              :disabled="cart.skuNum === 1"
             >
+              -
+            </button>
             <input
               autocomplete="off"
               type="text"
@@ -38,20 +40,20 @@
               minnum="1"
               class="itxt"
             />
-            <a
+            <button
               href="javascript:void(0)"
               class="plus"
               @click="updateCount(cart.skuId, 1)"
-              >+</a
+              :disabled="cart.skuNum === 10"
             >
+              +
+            </button>
           </li>
           <li class="cart-list-con6">
             <span class="sum">{{ cart.skuNum * cart.skuPrice }}</span>
           </li>
           <li class="cart-list-con7">
-            <a href="#none" class="sindelet" @click="delCart(cart.skuId)"
-              >删除</a
-            >
+            <a class="sindelet" @click="delCart(cart.skuId)">删除</a>
             <br />
             <a href="#none">移到收藏</a>
           </li>
@@ -111,7 +113,9 @@ export default {
       this.getUpdateCartCount({ skuId, skuNum });
     },
     delCart(skuId) {
-      this.getDelCart(skuId);
+      if (window.confirm("您确定要删除该商品吗？")) {
+        this.getDelCart(skuId);
+      }
     },
   },
   mounted() {

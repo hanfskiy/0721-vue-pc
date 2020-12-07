@@ -95,6 +95,7 @@
                   changepirce="0"
                   v-for="attrValueList in attrList.spuSaleAttrValueList"
                   :key="attrValueList.id"
+                  class="active"
                 >
                   {{ attrValueList.saleAttrValueName }}
                 </dd>

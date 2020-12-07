@@ -37,7 +37,7 @@ export default {
       });
     },
     GET_DELCART(state, skuId) {
-      state.cartList = state.cartList.filter((cart) => cart.skuid !== skuId);
+      state.cartList = state.cartList.filter((cart) => cart.skuId !== skuId);
     },
   },
 };

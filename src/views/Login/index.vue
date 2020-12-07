@@ -14,24 +14,41 @@
             </ul>
             <div class="login-text">
               <form action="">
-                <div class="login-content">
-                  <i class="el-icon-user"></i>
-                  <input type="text" placeholder="手机号" />
-                </div>
-                <div class="login-content">
-                  <i class="el-icon-lock"></i>
-                  <input type="password" placeholder="请输入密码" />
-                </div>
+                <ValidationProvider rules="required" v-slot="{ errors }">
+                  <div class="login-content">
+                    <i class="el-icon-user"></i>
+                    <input
+                      type="text"
+                      placeholder="手机号"
+                      v-model="user.phone"
+                    />
+                    <span :style="{ color: 'red' }">{{ errors[0] }}</span>
+                  </div>
+                </ValidationProvider>
+
+                <ValidationProvider rules="required" v-slot="{ errors }">
+                  <div class="login-content">
+                    <i class="el-icon-lock"></i>
+                    <input
+                      type="password"
+                      placeholder="请输入密码"
+                      v-model="user.password"
+                    />
+                    <span :style="{ color: 'red' }">{{ errors[0] }}</span>
+                  </div>
+                </ValidationProvider>
                 <div class="login-check">
                   <label for="">
-                    <input type="checkbox" />
+                    <input type="checkbox" v-model="isAutoLogin" />
                     自动登录
                   </label>
                   <span>
                     <a href="">忘记密码？</a>
                   </span>
                 </div>
-                <el-button type="danger" class="login-btn">登录</el-button>
+                <el-button type="danger" class="login-btn" @click="submit"
+                  >登录</el-button
+                >
               </form>
               <router-link to="/register" class="login-to"
                 >立即注册</router-link
@@ -45,20 +62,58 @@
 </template>
 
 <script>
-import { reqLogin } from "@api/user";
+import { mapState, mapActions } from "vuex";
+import { ValidationProvider, extend } from "vee-validate";
+import { required } from "vee-validate/dist/rules";
+
+extend("required", required);
 
 export default {
   name: "Login",
+  data() {
+    return {
+      user: {
+        phone: "",
+        password: "",
+      },
+      islogin: false, //正在登陆
+      isAutoLogin: true, //自动登陆
+    };
+  },
+  computed: {
+    ...mapState({
+      token: (state) => state.user.token,
+      name: (state) => state.user.name,
+    }),
+  },
+
+  created() {
+    // 如果token存在，就不需要登陆，直接跳转到主页面
+    if (this.token) {
+      this.$router.replace("/");
+    }
+  },
   methods: {
-    login() {
-      reqLogin("13700000000", "11111111")
-        .then((res) => {
-          console.log(res);
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+    ...mapActions(["login"]),
+    async submit() {
+      try {
+        if (this.islogin) return;
+        this.islogin = true;
+        const { phone, password } = this.user;
+        await this.login({ phone, password });
+        // 登陆成功且选择了自动登陆，保存token
+        if (this.isAutoLogin) {
+          localStorage.setItem("token", this.token);
+          localStorage.setItem("name", this.name);
+        }
+        this.$router.replace("/");
+      } catch {
+        this.islogin = false;
+      }
     },
+  },
+  components: {
+    ValidationProvider,
   },
 };
 </script>
