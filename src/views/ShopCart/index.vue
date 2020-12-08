@@ -13,7 +13,12 @@
       <div class="cart-body">
         <ul class="cart-list" v-for="cart in cartList" :key="cart.id">
           <li class="cart-list-con1">
-            <input type="checkbox" name="chk_list" :checked="cart.isChecked" />
+            <input
+              type="checkbox"
+              name="chk_list"
+              :checked="cart.isChecked"
+              @change="isCheck(cart)"
+            />
           </li>
           <li class="cart-list-con2">
             <img :src="cart.imgUrl" />
@@ -39,6 +44,8 @@
               :value="cart.skuNum"
               minnum="1"
               class="itxt"
+              @blur="update(cart.skuId, cart.skuNum, $event)"
+              @input="formatSkuNum"
             />
             <button
               href="javascript:void(0)"
@@ -62,11 +69,11 @@
     </div>
     <div class="cart-tool">
       <div class="select-all">
-        <input class="chooseAll" type="checkbox" />
+        <input class="chooseAll" type="checkbox" v-model="isCheckAll" />
         <span>全选</span>
       </div>
       <div class="option">
-        <a href="#none">删除选中的商品</a>
+        <a @click="delCheck(cart.skuId)">删除选中的商品</a>
         <a href="#none">移到我的关注</a>
         <a href="#none">清除下柜商品</a>
       </div>
@@ -80,7 +87,7 @@
           <i class="summoney">{{ totalPrice }}</i>
         </div>
         <div class="sumbtn">
-          <a class="sum-btn" href="###" target="_blank">结算</a>
+          <a class="sum-btn" @click="submit">结算</a>
         </div>
       </div>
     </div>
@@ -106,9 +113,27 @@ export default {
         .filter((cart) => cart.isChecked === 1)
         .reduce((p, c) => p + c.skuPrice * c.skuNum, 0);
     },
+    isCheckAll: {
+      get() {
+        return (
+          this.cartList.length > 0 &&
+          this.cartList.every((cart) => cart.isChecked === 1)
+        );
+      },
+      set(val) {
+        this.cartList.map((cart) => {
+          cart.isChecked = val ? 1 : 0;
+        });
+      },
+    },
   },
   methods: {
-    ...mapActions(["getCartList", "getUpdateCartCount", "getDelCart"]),
+    ...mapActions([
+      "getCartList",
+      "getUpdateCartCount",
+      "getDelCart",
+      "getCheckCart",
+    ]),
     updateCount(skuId, skuNum) {
       this.getUpdateCartCount({ skuId, skuNum });
     },
@@ -116,6 +141,31 @@ export default {
       if (window.confirm("您确定要删除该商品吗？")) {
         this.getDelCart(skuId);
       }
+    },
+    update(skuId, skuNum, e) {
+      // console.log(skuId, skuNum, e.target.value);
+      if (+e.target.value === skuNum) {
+        return;
+      }
+      this.getUpdateCartCount({ skuId, skuNum: e.target.value - skuNum });
+    },
+    formatSkuNum(e) {
+      let skuNum = e.target.value.replace(/\D+/g, "");
+      if (skuNum < 1) {
+        skuNum = 1;
+      } else if (skuNum > 10) {
+        skuNum = 10;
+      }
+
+      e.target.value = skuNum;
+    },
+    isCheck(cart) {
+      const skuId = cart.skuId;
+      const isChecked = cart.isChecked === 1 ? 0 : 1;
+      this.getCheckCart({ skuId, isChecked });
+    },
+    submit() {
+      this.$router.push("/trade");
     },
   },
   mounted() {

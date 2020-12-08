@@ -12,6 +12,7 @@ import Pay from "../views/Pay";
 import PaySuccess from "../views/PaySuccess";
 import Trade from "../views/Trade";
 import Center from "../views/Center";
+import store from "../store";
 
 const push = VueRouter.prototype.push;
 const replace = VueRouter.prototype.replace;
@@ -35,7 +36,7 @@ VueRouter.prototype.replace = function(location, onComplate, onAbort) {
 
 Vue.use(VueRouter);
 
-export default new VueRouter({
+const router = new VueRouter({
   routes: [
     {
       path: "/",
@@ -62,6 +63,13 @@ export default new VueRouter({
       name: "addCartSuccess",
       path: "/addCartSuccess",
       component: AddCartSuccess,
+      // 路由独享守卫
+     /*  beforeEnter: (to, from, next) => {
+        if (from.name === "detail" && sessionStorage.getItem("cart")) {
+          return next();
+        }
+        next("/shopcart");
+      }, */
     },
     {
       name: "shopCart",
@@ -101,3 +109,17 @@ export default new VueRouter({
     return { x: 0, y: 0 };
   },
 });
+
+// 需要权限验证的地址
+const permissionPath = ["/pay", "/trade", "/center"];
+
+// 路由全局前置守卫
+router.beforeEach((to, from, next) => {
+  if (permissionPath.indexOf(to.path) > -1 && !store.state.user.token) {
+    return next("/login");
+  }
+
+  next();
+});
+
+export default router;

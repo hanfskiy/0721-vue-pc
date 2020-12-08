@@ -382,6 +382,7 @@ export default {
           skuNum: this.skuNum,
         });
 
+        sessionStorage.setItem("cart", JSON.stringify(this.skuInfo));
         this.$router.push(`/addCartSuccess?skuNum=${this.skuNum}`);
       } catch (e) {
         console.log(e);
